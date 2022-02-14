@@ -1,0 +1,8 @@
+name: quickq
+channels:
+  - conda-forge
+dependencies:
+  - scikit-learn
+  - deepchem
+  - tensorflow
+  - ase

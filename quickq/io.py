@@ -1,7 +1,10 @@
 """Atoms and MolProps to molml LazyValues"""
 from typing import Type
 import bidict
+import os
 
+import numpy as np
+import pandas as pd
 import ase
 import molml.utils
 
@@ -32,3 +35,61 @@ def atoms_to_molmllist(atoms: Atoms, bonds: bool = False):
         )
     else:
         return [atomic_numbers, positions]
+    
+def save_Q_mols(root, ids, y_hat):
+    """Save the predictions back to file in the temperature table"""
+    if not root.endswith('/'):
+        root += '/'
+    # first determine unique ids
+    split_ids = np.array([id_.split('_') for id_ in ids])
+    structure_ids, temperature_ids = (split_ids.T)
+    output_df = pd.DataFrame(
+        {
+            'structure_id': structure_ids.reshape(-1),
+            'temperature_id': temperature_ids.reshape(-1),
+            'log_qpart_predicted': y_hat.reshape(-1)
+        }
+    )
+    output_df['temperature_id'] = output_df['temperature_id'].astype(int)
+    # group by structure
+    structure_groups = output_df.groupby('structure_id')
+    for group_id, structure_df in structure_groups:
+        structure_df.sort_values('temperature_id', inplace=True)
+        current_df = pd.read_csv(root+group_id+'.csv', index_col=0)
+        current_df['log_qpart_predicted'] = structure_df['log_qpart_predicted'].values
+        current_df.to_csv(root+group_id+'.csv')
+    return
+
+def save_Q_rxns(root, ids, y_hat):
+    """Save predicted TS partition functions to file.
+    
+    Must have temperature as the first column.
+    """
+    if not root.endswith('/'):
+        root += '/'
+    split_ids = np.array([id_.split('_') for id_ in ids])
+    rxn_ids, temperature_ids = (split_ids.T)
+    output_df = pd.DataFrame(
+        {
+            'rxn_id': rxn_ids.reshape(-1),
+            'temperature_id': temperature_ids.reshape(-1),
+            'log_qpart_predicted': y_hat.reshape(-1)
+        }
+    )
+    output_df['temperature_id'] = output_df['temperature_id'].astype(int)
+    # group by rxn
+    rxn_groups = output_df.groupby('rxn_id')
+    for rxn_id, rxn_df in rxn_groups:
+        rxn_df.sort_values('temperature_id', inplace=True)
+        # there may or may not be a ts file already
+        if os.path.exists(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv'):
+            current_df = pd.read_csv(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv', index_col=0)
+        else:
+            new_df = pd.read_csv(root+'rxn'+rxn_id+f'/r{rxn_id}.csv', index_col=0)
+            new_df = new_df[[new_df.columns[0]]]
+            current_df = new_df
+        current_df['log_qpart_predicted'] = rxn_df['log_qpart_predicted'].values
+        current_df.to_csv(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv')
+    return
+    
+    

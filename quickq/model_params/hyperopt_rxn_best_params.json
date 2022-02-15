@@ -1,0 +1,1 @@
+{"activation_fns": "relu", "batch_size": 2609, "bias_init_consts": -0.20733745027765146, "layer_count": 2, "learning_rate": 0.0003129769328653204, "neuron_count": 749, "weight_decay_penalty": 4.195267704891494e-05, "weight_init_stddevs": 0.05860134256700076}

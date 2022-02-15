@@ -16,13 +16,12 @@ import numpy
 import tensorflow.keras as ks
 import tensorflow as tf
 
-from .temporary import TempTempDir
 
 try:
     from collections.abc import Sequence as SequenceCollection
 except:
     from collections import Sequence as SequenceCollection
-
+    
 class DCDNN(deepchem.models.KerasModel):
     """Adapted from deepchem RobustMultitaskRegressor.
     

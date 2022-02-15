@@ -15,7 +15,7 @@ import numpy
 import pandas as pd
 
 import quickq.structure
-import quickq.features
+import quickq.featurizers
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +31,12 @@ class QestLoader:
     
     Parameters
     ----------
-    featurizer : reaxnet.features.molfeaturizers.MolFeaturizer
+    featurizer : reaxnet.featurizers.molfeaturizers.MolFeaturizer
         Featurizer to apply to each molecule
     """
     def __init__(
         self,
-        featurizer: quickq.features.MolFeaturizer = None
+        featurizer: quickq.featurizers.MolFeaturizer = None
     ):
         self.featurizer = featurizer
         return
@@ -187,7 +187,7 @@ class QestLoader:
                 if 'logQ' in df.columns:
                     y = df['logQ'].values.reshape(-1,1)
                 else:
-                    y=None
+                    y= numpy.empty(len(X))
                 w = numpy.ones(len(X))
                 
                 ids = numpy.array(df['ids']).reshape(-1,1)
@@ -198,7 +198,7 @@ class QestLoader:
 class QesTSLoader:
     def __init__(
         self,
-        featurizer: quickq.features.MolFeaturizer = None
+        featurizer: quickq.featurizers.MolFeaturizer = None
     ):
         self.featurizer = featurizer
         return
@@ -380,7 +380,7 @@ class QesTSLoader:
                 if 'logQts' in df.columns:
                     y = df['logQts'].values.reshape(-1,1)
                 else:
-                    y = None
+                    y= numpy.empty(len(X))
                 w = numpy.ones(len(X))
                 
                 ids = numpy.array(df['ids']).reshape(-1,1)

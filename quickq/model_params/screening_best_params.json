@@ -1,0 +1,1 @@
+{"fold_dir": "EncodedBonds/folds/", "X_transformers": "MinMaxTransformer", "y_transformers": "NormalizationTransformer"}

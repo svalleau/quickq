@@ -125,7 +125,7 @@ class QestLoader:
         logger.info("Loading raw samples now.")
         logger.info("shard_size: %s" % str(shard_size))
         if not root.endswith('/'):
-            root.append('/')
+            root += '/'
         
         def shard_generator():
             for shard_num, shard in enumerate(self._get_shards(root, shard_size, num_shards)):
@@ -193,7 +193,6 @@ class QestLoader:
                 ids = numpy.array(df['ids']).reshape(-1,1)
                 yield X, y, w, ids
         return deepchem.data.DiskDataset.create_dataset(shard_generator(), data_dir, ['logQ'])
-    
     
 class QesTSLoader:
     def __init__(
@@ -367,7 +366,7 @@ class QesTSLoader:
         num_shards : int, total number of shards to load.
         """
         if not root.endswith('/'):
-            root.append('/')
+            root +='/'
         def shard_generator():
             for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
                 # add temperature to whatever feature vector was computed
@@ -386,4 +385,205 @@ class QesTSLoader:
                 ids = numpy.array(df['ids']).reshape(-1,1)
                 yield X, y, w, ids
         return deepchem.data.DiskDataset.create_dataset(shard_generator(), data_dir, ['logQts'])
- 
+    
+    
+class DoubleLoader:
+    def __init__(
+        self,
+        featurizer: quickq.featurizers.MolFeaturizer = None
+    ):
+        self.featurizer = featurizer
+        import quickq.pipeline
+        return
+
+    def _get_shards(
+        self,
+        root: str,
+        shard_size: int,
+        num_shards: int
+    ) -> Iterator:
+        """
+        Shardize the root directory and return a generator for the shards.
+        
+        Parameters
+        ----------
+        root : str
+            Root directory containing the data. See class docs for details.
+        shard_size : int
+            Number of reactions to load per shard
+        num_shards : int, total number of shards to load.
+        
+        Returns
+        -------
+        generator of shards
+        """
+        # iterate through shards
+        shard_num = 1
+        # get a big list of the reactions
+        rxn_paths = [root+str(path) for path in os.listdir(root)]
+        logger.info(f'Total shards: {int(len(rxn_paths)/shard_size)}')
+        for shard_indexes in range(0, len(rxn_paths), shard_size):
+            # if we haven't reached out shard limit, open the shard
+            if num_shards is None or shard_num <= num_shards:
+                shardpaths = rxn_paths[shard_indexes:shard_indexes+shard_size]
+                logger.info(f'Loading shard {shard_num}')
+                shard_num += 1
+                yield self._open_shard(shardpaths)
+            else:
+                break
+                
+    
+    def _open_shard(self, shardpaths: List[str]):
+        """Open a single list reactions into molprops. Grouped by reaction.
+        
+        Parameters
+        ----------
+        shardpaths : list of str
+            The paths to reactions in this shard
+        
+        Returns
+        -------
+        molprops : list of reaction list, each containing 3 molprops (r, p, ts)
+        rxns : list of reactio indeces
+        scaffolds : list of scaffolds
+        """
+        rxns = []
+        structures = []
+        for rxn_path in shardpaths:
+            rxn = rxn_path.split('/')[-1][3:]
+            # reactant, product, ts
+            r = quickq.structure.Structure.load_properties(
+                rxn_path+'/r'+rxn+'.extxyz',
+                csv_filename = rxn_path+'/r'+rxn+'.csv'
+            )
+            p = quickq.structure.Structure.load_properties(
+                rxn_path+'/p'+rxn+'.extxyz',
+                csv_filename = rxn_path+'/p'+rxn+'.csv'
+            )
+            try:
+                ts = quickq.structure.Structure.load_properties(
+                    rxn_path+'/ts'+rxn+'.extxyz',
+                    csv_filename = rxn_path+'/ts'+rxn+'.csv'
+                )
+            except:
+                ts = None
+            structures.append([r, p, ts])
+            rxns.append(rxn)
+            
+            # if we cannot produce a scaffold just continue
+        return structures, rxns
+    
+    def load_data(self,
+                  root: str,
+                  shard_size: int = 500,
+                  num_shards: int = None
+                 ):
+        """Load the data into pandas dataframes.
+        
+        
+        Parameters
+        ----------
+        root : str
+            Root directory containing the data. See class docs for details.
+        shard_size : int
+            Number of reactions to load per shard
+        num_shards : int, total number of shards to load.
+        
+        Returns
+        -------
+        generator of dataframes
+        """
+        logger.info("Loading raw samples now.")
+        logger.info("shard_size: %s" % str(shard_size))
+        
+        def shard_generator():
+            for shard_num, shard in enumerate(self._get_shards(root, shard_size, num_shards)):
+                time1 = time.time()
+                structures, rxns = shard
+                    
+                # loop through each reaction, NOT each molecule
+                dfs=[]
+                for i, rxn in enumerate(rxns):
+                    structure_set = structures[i]
+                    # check we haev the expected sizes
+                    assert len(structure_set) == 3, 'rxn should have 3 systems'
+                    assert len(numpy.unique([len(mp.atoms) for mp in structure_set])) == 1, 'all systems not the same size'
+                    # create dataframe of T dependant quantities
+                    df = pd.DataFrame({'T':list(structure_set[0].T.flatten()),
+                                      })
+                    if structure_set[2] is not None and structure_set[2].log_qpart is not None:
+                        df['logQts'] = list(structure_set[2].log_qpart.flatten())
+                    
+                    # get the features difference
+                    if self.featurizer is not None:
+                        rfeats = self.featurizer.featurize(structure_set[0])
+                        pfeats = self.featurizer.featurize(structure_set[1])
+                        feats = pfeats - rfeats
+                        # add it the the df, all rows have the same value because these features on not
+                        # temperature dependant
+                        df[self.featurizer.name] = list(numpy.tile(feats, (len(df), 1)))
+                        
+                    # predict the Qs with qest
+                    rfeats = numpy.concatenate([numpy.tile(rfeats, (len(df), 1)), (1/df['T'].values).reshape(-1,1)], axis=1)
+                    r_dataset = deepchem.data.NumpyDataset(rfeats)
+                    logQr = quickq.pipeline.predict_qest(r_dataset)
+                    pfeats = numpy.concatenate([numpy.tile(pfeats, (len(df), 1)), (1/df['T'].values).reshape(-1,1)], axis=1)
+                    p_dataset = deepchem.data.NumpyDataset(pfeats)
+                    logQp = quickq.pipeline.predict_qest(p_dataset)
+                    
+                    df['logQr'] = logQr
+                    df['logQp'] = logQp
+                    
+                    # set a row of ids
+                    df['ids'] = df.apply(lambda row: rxns[i]+'_'+str(int(row.name)), axis=1)
+                    dfs.append(df)
+               
+                # combine all reactions in this shard
+                df = pd.concat(dfs)
+
+                time2 = time.time()
+                logger.info("TIMING: featurizing shard %d took %0.3f s" %
+                            (shard_num, time2 - time1))
+                
+                yield df
+                
+        return shard_generator()
+    
+    def create_dataset(self,
+                       root: str,
+                       data_dir: str,
+                       shard_size: int = 500,
+                       num_shards: int = None
+                       ) -> deepchem.data.DiskDataset:
+        """Featurize raw data into deepchem dataset.
+        
+        Parameters
+        ----------
+        root : str
+            Root directory containing the data. See class docs for details.
+        data_dir : str
+            directory name to store deepchem disk dataset
+        shard_size : int
+            Number of reactions to load per shard
+        num_shards : int, total number of shards to load.
+        """
+        if not root.endswith('/'):
+            root += '/'
+        def shard_generator():
+            for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
+                # add temperature to whatever feature vector was computed
+                feats = numpy.vstack(df[self.featurizer.name].values)
+                qr = df['logQr'].values.reshape(-1,1)
+                qp = df['logQp'].values.reshape(-1,1)
+                Tinv = 1/df['T'].values.reshape(-1,1)
+                X = numpy.concatenate([feats, qr, qp, Tinv], axis=1)
+                
+                if 'logQts' in df.columns:
+                    y = df['logQts'].values.reshape(-1,1)
+                else:
+                    y= numpy.empty(len(X))
+                w = numpy.ones(len(X))
+                
+                ids = numpy.array(df['ids']).reshape(-1,1)
+                yield X, y, w, ids
+        return deepchem.data.DiskDataset.create_dataset(shard_generator(), data_dir, ['logQts'])

@@ -38,7 +38,7 @@ if __name__ == "__main__":
             'pandas',
             'ase',
             'molml',
-            'dscribe',
+            'dscribe==1.0.0',
         ],
         extras_require={
             'tests': [

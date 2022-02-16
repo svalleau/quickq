@@ -313,7 +313,7 @@ class QesTSLoader:
                     structure_set = structures[i]
                     # check we haev the expected sizes
                     assert len(structure_set) == 3, 'rxn should have 3 systems'
-                    assert len(numpy.unique([len(mp.atoms) for mp in structure_set])) == 1, 'all systems not the same size'
+                    assert len(numpy.unique([len(mp.atoms) for mp in structure_set if mp is not None])) == 1, 'all systems not the same size'
                     # create dataframe of T dependant quantities
                     if structure_set[0].log_qpart is None or structure_set[1].log_qpart is None:
                         raise ValueError('Cannot use QesTS predictor without R and P partition function')
@@ -507,7 +507,7 @@ class DoubleLoader:
                     structure_set = structures[i]
                     # check we haev the expected sizes
                     assert len(structure_set) == 3, 'rxn should have 3 systems'
-                    assert len(numpy.unique([len(mp.atoms) for mp in structure_set])) == 1, 'all systems not the same size'
+                    assert len(numpy.unique([len(mp.atoms) for mp in structure_set if mp is not None])) == 1, 'all systems not the same size'
                     # create dataframe of T dependant quantities
                     df = pd.DataFrame({'T':list(structure_set[0].T.flatten()),
                                       })

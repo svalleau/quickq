@@ -42,3 +42,15 @@ if __name__ == '__main__':
             dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/qest')
             y_hat = quickq.pipeline.predict_qest(dataset)
             quickq.io.save_Q_mols(args.root, dataset.ids, y_hat)
+            
+        elif args.qests:
+            loader = quickq.loader.QesTSLoader(EncodedBonds)
+            dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/qests')
+            y_hat = quickq.pipeline.predict_qests(dataset)
+            quickq.io.save_Q_rxns(args.root, dataset.ids, y_hat)
+            
+        elif args.double:
+            loader = quickq.loader.DoubleLoader(EncodedBonds)
+            dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/double')
+            y_hat = quickq.pipeline.predict_qests(dataset)
+            quickq.io.save_Q_rxns(args.root, dataset.ids, y_hat)

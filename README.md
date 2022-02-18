@@ -35,7 +35,7 @@ Note that structures must contain only carbon, hydrogen, nitrogen and oxygen. Th
 ### 1. Qest Usage
 Qest is a predictor of partition functions for arbitrary structures. To do so, two files are required for each system:
 - an extended XYZ file with the extension `.extxyz` containing atom types and positions
-- a comma seperated value file with extension `.csv` containing at least a column of temperatures in Kelvin to predict the partition function at. This column **must either have label "T" or start with "T "**. Other columns will not be modified.
+- a comma seperated value file with extension `.csv` containing the first column as temperatures in Kelvin to predict the partition function at. This column **must either have label "T" or start with "T "**. Other columns will not be modified.
 
 These files must have the same file header, eg `molecule1.extxyz` and `molecule1.csv`.
 
@@ -57,7 +57,7 @@ The predictions can then be executed by the following command `python quickq.py 
 QesTS is a predictor of unknown transition state partition functions. Four files are required for each reaction, where `XX` is an arbitrary name:
 - an extended XYZ file with the name `rXX.extxyz` containing atom types and positions **for the reactant**
 - an extended XYZ file with the name `pXX.extxyz` containing atom types and positions **for the product**
-- a comma seperated value file with name `rXX.csv` containing at least two columns. One column is a column of temperatures in Kelvin. This column **must either have label "T" or start with "T "**. The second column must have the label "log_qpart" with values of the natural logarithm of the reactant partition functions at the specified temperatures. Other columns will not be modified.
+- a comma seperated value file with name `rXX.csv` containing at least two columns. One column is a column of temperatures in Kelvin and it must be in the first position. This column **must either have label "T" or start with "T "**. The second column must have the label "log_qpart" with values of the natural logarithm of the reactant partition functions at the specified temperatures. Other columns will not be modified.
 - a comma seperated value file with name `pXX.csv` with the same format as `rXX.csv` except with product logged partition functions.
 
 **Note that the temperatures in the two csv files must be identical. This will not be checked.**

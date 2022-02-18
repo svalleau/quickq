@@ -1,10 +1,10 @@
-# quickq
-Prediction of partition functions using trained ML estimators.
+# QuickQ
+Quick prediction of partition functions, Q, using trained machine learning estimators.
 
-This repository consitutes the final products of the works: [DOI]
+This repository contains the final products of the works: [DOI]
 
 ## Installation
-To use the tool, install and activate the conda environment, and then install the package.
+To use the software, install and activate the conda environment, and then install the package.
 
 ```
 conda create --file environment.yml --name <new_env_name>
@@ -17,28 +17,31 @@ Once installed, the package can be used at the command line as `python quickq.py
 ```
 usage: quickq.py [-h] (-q | -t | -d) root
 
-Predict partition functions.
+predict partition functions
 
 positional arguments:
-  root          Path to root directory containing structure files or reaction directories.
+  root          path to root directory containing structure files or reaction directories
 
 optional arguments:
   -h, --help    show this help message and exit
-  -q, --qest    Use Qest to predict partition functions of molecules
-  -t, --qests   Use QesTS to predict partition functions of unknown transition states.
-  -d, --double  Use Qest and QesTS to predict partition functions of unknown transition states.
+  -q, --qest    use Qest to predict partition functions of molecules
+  -t, --qests   use QesTS to predict partition functions of unknown transition states
+  -d, --double  use Qest and QesTS to predict partition functions of unknown transition states
 ```
 ## Usage details
-Note that structures must contain only carbon, hydrogen, nitrogen and oxygen. The predictor will function for systems with more than 7 C, N, O atoms due to the size independance of the EncodedBonds featurizer [1], however it was not tested for these systems. Input data must strictly adhere to the below format for predictions to be made.
+Note that structures may only contain carbon, hydrogen, nitrogen and/or oxygen atoms. The predictor will function for systems with more than 7 C, N, O atoms due to the size independence of the EncodedBonds featurizer [1]. However, it was not tested for these systems. See sections below for accepted input data format details. 
 
 ### 1. Qest Usage
-Qest is a predictor of partition functions for arbitrary structures. To do so, two files are required for each system:
-- an extended XYZ file with the extension `.extxyz` containing atom types and positions
-- a comma seperated value file with extension `.csv` containing the first column as temperatures in Kelvin to predict the partition function at. This column **must either have label "T" or start with "T "**. Other columns will not be modified.
 
-These files must have the same file header, eg `molecule1.extxyz` and `molecule1.csv`.
+Qest is a predictor of partition functions for arbitrary structures. 
 
-Place these files for each system alone in a directory whose path we call `root`.
+Input data: two files are required for each system
+1. an extended XYZ file with the extension `.extxyz` - contains atom types and positions - units [angstrom]
+2. a comma seperated value file with extension `.csv` - contains temperatures at which to predict the partition function - units [Kelvin]. This column **must either have label "T" or start with "T "**. Other columns will not be modified.
+
+Both files must have the same file name header, eg `molecule1.extxyz` and `molecule1.csv`.
+
+Place both files for each system in a directory with a path we call `root`.
 
 The directory structure should then look like, where `XX` and `YY` represent an arbitrary names, note that no name should be repeated between systems:
 ```

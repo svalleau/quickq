@@ -1,6 +1,5 @@
 # quickq
 Prediction of partition functions using trained ML estimators.
-![logo](.quickqlogo.png)
 
 This repository consitutes the final products of the works: [DOI]
 

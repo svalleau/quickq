@@ -1,13 +1,4 @@
-"""Parent class for extracting molecular properties from ASE atoms objects.
-
-Examples
---------
->>> molprops = MolProperties(atoms)
->>> print(type(molprops.geom))
-numpy.ndarray
->>> molprops.compute_mass()
->>> molprops.mass
-1.67382335232e-27
+"""Class for representing a molecular structure.
 """
 import functools
 from typing import Type, List
@@ -25,13 +16,12 @@ import ase.io
 Atoms = Type[ase.Atoms]
 
 class Structure:
-    """One structure ar multiple temperatures.
+    """One structure at multiple temperatures.
 
     Parameters
     ----------
     atoms : :obj:`ase.atoms.Atoms`
-        The atoms object to conduct analysis on.
-
+        The atoms object to conduct analysis on
 
     """
     def __init__(self,

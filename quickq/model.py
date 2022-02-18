@@ -5,13 +5,9 @@ desired. Here we create a Deepchem simple dense Neural network.
 """
 import os
 from typing import Iterable, Union, List
-import pickle
-import logging
 
 import deepchem.models
 import deepchem.data
-import deepchem.models.losses
-import deepchem.trans
 import numpy
 import tensorflow.keras as ks
 import tensorflow as tf

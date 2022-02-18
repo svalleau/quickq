@@ -1,7 +1,10 @@
 """Loader of raw data into deepchem dataset after featurization.
 
-Molecule loader creates datasets of featurized molecules.
-Reaction loader creates datasets of featurized molecules.
+Qest loader creates datasets of featurized molecules.
+QesTS loader creates datasets of featurized reactions.
+Double loader creates dataset of featurized reactants and products,
+makes a prediction with Qest, and uses this to produce a dataset of
+featurized reactions.
 """
 from typing import Union, Type, Iterable, List, Iterator
 from pathlib import Path
@@ -31,7 +34,7 @@ class QestLoader:
     
     Parameters
     ----------
-    featurizer : reaxnet.featurizers.molfeaturizers.MolFeaturizer
+    featurizer : quickq.featurizers.MolFeaturizer
         Featurizer to apply to each molecule
     """
     def __init__(
@@ -47,16 +50,15 @@ class QestLoader:
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """
-        Shardize the root directory and return a generator for the shards.
+        """Shardize the root directory and return a generator for the shards.
         
         Parameters
         ----------
         root : str
             Root directory containing the data. See class docs for details.
         shard_size : int
-            Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+            Number of structures to load per shard
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -78,7 +80,7 @@ class QestLoader:
                 break
             
     def _open_shard(self, shardpaths: List[str]):
-        """Open a single list files into structures.
+        """Open a single list of files into structures.
         
         Parameters
         ----------
@@ -109,14 +111,13 @@ class QestLoader:
                  ):
         """Load the data into pandas dataframes.
         
-        
         Parameters
         ----------
         root : str
             Root directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -175,7 +176,7 @@ class QestLoader:
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         """
         def shard_generator():
             for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
@@ -195,6 +196,23 @@ class QestLoader:
         return deepchem.data.DiskDataset.create_dataset(shard_generator(), data_dir, ['logQ'])
     
 class QesTSLoader:
+    """Loads structure from reactions from raw data files.
+    
+    Data must be stored in a folder as:
+    rxnXXX/
+    -rXXX.extxyz
+    -rXXX.csv
+    -pXXX.extxyz
+    -pXXX.csv
+    For each reaction XXX. csvs must contain column temperature "T" as first columns
+    and "log_qpart" as the reacta/products logged Q values. T values must match.
+    Data is featurized and saved as a deepchem dataset.
+    
+    Parameters
+    ----------
+    featurizer : quickq.featurizers.MolFeaturizer
+        Featurizer to apply to each molecule
+    """
     def __init__(
         self,
         featurizer: quickq.featurizers.MolFeaturizer = None
@@ -208,16 +226,15 @@ class QesTSLoader:
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """
-        Shardize the root directory and return a generator for the shards.
+        """Shardize the root directory and return a generator for the shards.
         
         Parameters
         ----------
         root : str
             Root directory containing the data. See class docs for details.
         shard_size : int
-            Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+            Number of structures to load per shard
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -240,7 +257,7 @@ class QesTSLoader:
                 
     
     def _open_shard(self, shardpaths: List[str]):
-        """Open a single list reactions into molprops. Grouped by reaction.
+        """Open a single list of reaction directories into structures.
         
         Parameters
         ----------
@@ -249,9 +266,8 @@ class QesTSLoader:
         
         Returns
         -------
-        molprops : list of reaction list, each containing 3 molprops (r, p, ts)
-        rxns : list of reactio indeces
-        scaffolds : list of scaffolds
+        structures : list of list of Structure objects
+        rxns : list of reaction indexes
         """
         rxns = []
         structures = []
@@ -286,14 +302,13 @@ class QesTSLoader:
                  ):
         """Load the data into pandas dataframes.
         
-        
         Parameters
         ----------
         root : str
             Root directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -363,7 +378,7 @@ class QesTSLoader:
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         """
         if not root.endswith('/'):
             root +='/'
@@ -388,6 +403,23 @@ class QesTSLoader:
     
     
 class DoubleLoader:
+    """Loads structure from reactions from raw data files.
+    
+    Data must be stored in a folder as:
+    rxnXXX/
+    -rXXX.extxyz
+    -rXXX.csv
+    -pXXX.extxyz
+    -pXXX.csv
+    For each reaction XXX. csvs must contain column temperature "T" as first column. 
+    T values must match.
+    Data is featurized and saved as a deepchem dataset.
+    
+    Parameters
+    ----------
+    featurizer : quickq.featurizers.MolFeaturizer
+        Featurizer to apply to each molecule
+    """
     def __init__(
         self,
         featurizer: quickq.featurizers.MolFeaturizer = None
@@ -402,16 +434,15 @@ class DoubleLoader:
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """
-        Shardize the root directory and return a generator for the shards.
+        """Shardize the root directory and return a generator for the shards.
         
         Parameters
         ----------
         root : str
             Root directory containing the data. See class docs for details.
         shard_size : int
-            Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+            Number of structures to load per shard
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -434,7 +465,7 @@ class DoubleLoader:
                 
     
     def _open_shard(self, shardpaths: List[str]):
-        """Open a single list reactions into molprops. Grouped by reaction.
+        """Open a single list of reaction directories into structures.
         
         Parameters
         ----------
@@ -443,9 +474,8 @@ class DoubleLoader:
         
         Returns
         -------
-        molprops : list of reaction list, each containing 3 molprops (r, p, ts)
-        rxns : list of reactio indeces
-        scaffolds : list of scaffolds
+        structures : list of list of Structure objects
+        rxns : list of reaction indexes
         """
         rxns = []
         structures = []
@@ -478,8 +508,7 @@ class DoubleLoader:
                   shard_size: int = 500,
                   num_shards: int = None
                  ):
-        """Load the data into pandas dataframes.
-        
+        """Load the reactant and product data, make predictions, then give dataframes
         
         Parameters
         ----------
@@ -487,7 +516,7 @@ class DoubleLoader:
             Root directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         
         Returns
         -------
@@ -565,7 +594,7 @@ class DoubleLoader:
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, total number of shards to load.
+        num_shards : int, number of shards from total to load.
         """
         if not root.endswith('/'):
             root += '/'

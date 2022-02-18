@@ -1,10 +1,8 @@
-"""Featurizers of systems represented by MolProperties.
+"""Featurizers of systems represented by Structures.
 """
 from typing import Union, Type, Iterable
 
 import ase
-import deepchem.feat
-import dscribe.descriptors
 import molml.features
 import numpy
 
@@ -14,13 +12,7 @@ import quickq.io
 Structure = Type[quickq.structure.Structure]
 
 class MolFeaturizer:
-    """Parent class for featurizes molecules.
-    
-    Parameters
-    ----------
-    store : bool
-        Whether or not to store features in Structure object as well as return
-        the vector.
+    """Parent class for featurizing structures.
     
     Attributes
     ----------
@@ -28,13 +20,11 @@ class MolFeaturizer:
         Name of featurizer
     """
     name = 'MolFeaturizer'
-    def __init__(self, store: bool = False, **kwargs):
-        if type(store) != bool:
-            raise ValueError('store should be a bool')
+    def __init__(self, **kwargs):
         return
     
     def featurize(self, systems: Union[Structure, Iterable[Structure]], **kwargs) -> list:
-        """Featurize a set of MolProp systems.
+        """Featurize a set of Structures.
         
         Parameters
         ----------
@@ -81,47 +71,14 @@ class MolFeaturizer:
         raise NotImplementedError(
             f'`_features` method not defined for featurizer {self.name}')
         return None
-    
-
-class DscribeFeaturizer(MolFeaturizer):
-    """Featurizer wrapping any dscribe featurizer.
-    
-    Parameters
-    ----------
-    name : str
-        Name of featurizer in dscribe
-    store : bool
-        Whether or not to store features in Structure object as well as return
-        the vector.
-    **kwargs passed to dscribe featurizer construction
-    
-    Attributes
-    ----------
-    name : str
-        Name of featurizer
-    """
-    name = None
-    def __init__(self, name: str, store: bool = False, **kwargs):
-        super().__init__(store)
-        self.dsFeaturizer = getattr(dscribe.descriptors, name)(**kwargs)
-        self.name = name
-        return
-    
-    def _featurize(self, systems_: Iterable[Structure], **kwargs) -> list:
-        atomlist = [system.atoms for system in systems_]
-        features = self.dsFeaturizer.create(atomlist, **kwargs)
-        return features
-    
+      
 class MolMLFeaturizer(MolFeaturizer):
     """Featurizer wrapping any molml featurizer.
     
     Parameters
     ----------
     name : str
-        Name of featurizer in dscribe
-    store : bool
-        Whether or not to store features in Structure object as well as return
-        the vector.
+        Name of featurizer in molml
     bonds : bool
         whether to consider bonds when computing features
     fit_atoms : list of ase.Atoms

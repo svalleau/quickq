@@ -1,4 +1,4 @@
-"""Wrapper function for tranformation"""
+"""Wrapper function for tranformation and prediction."""
 import pickle
 import os
 
@@ -16,6 +16,15 @@ qest_y_trans = pickle.load(fileobj)
 fileobj.close()
 
 def predict_qest(dataset):
+    """Make predictions on a Qest format dataset.
+    
+    Transforms X, makes predictions, and untransforms y.
+    
+    Parameters
+    ----------
+    dataset : deechem.Dataset
+        data to make preidctions on. Should be created by data loader.
+    """
     # make transformation
     dataset_ = dataset.transform(qest_X_trans)
     y_hat = quickq.predictors.Qest.predict(dataset_)
@@ -23,6 +32,13 @@ def predict_qest(dataset):
     return y_hat
 
 def predict_qests(dataset):
+    """Make predictions on a QesTS format dataset.
+    
+    Parameters
+    ----------
+    dataset : deechem.Dataset
+        data to make preidctions on. Should be created by data loader.
+    """
     y_hat = quickq.predictors.QesTS.predict(dataset)
     return y_hat
     

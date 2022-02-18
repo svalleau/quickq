@@ -1,4 +1,4 @@
-"""Atoms and MolProps to molml LazyValues"""
+"""MolML transcription tool and save to file functions."""
 from typing import Type
 import bidict
 import os
@@ -17,15 +17,18 @@ def atoms_to_molmllist(atoms: Atoms, bonds: bool = False):
     """Constructs a molml list of lists from an atoms object.
     
     By default, will consider Atomic numbers and atom distances, but can be
-    directed to also compute bonds. See the reaxnet.io.rdkit for bond
-    determination.
-    
+    directed to also compute bonds. 
+
     Parameters
     ----------
     atoms : ase.Atoms
         Atoms to compute on.
     bonds : bool, default False
         Whether to compute bonds for the atoms
+    
+    Returns
+    -------
+    list of list, used by molml
     """
     positions = atoms.positions
     atomic_numbers = atoms.get_atomic_numbers()
@@ -37,7 +40,20 @@ def atoms_to_molmllist(atoms: Atoms, bonds: bool = False):
         return [atomic_numbers, positions]
     
 def save_Q_mols(root, ids, y_hat):
-    """Save the predictions back to file in the temperature table"""
+    """Save structure predictions back to file in the temperature table.
+    
+    Parameters
+    ----------
+    root : str
+        Root directory containing data files.
+    ids : iterable
+        Contains ids for each example. Format is specific
+        must be of the form XXXXX_Y, where XXXXX is a unique identifier
+        for the structure, and Y is an ascending number corresponding to the
+        position of a particular example in its' structure's csv file
+    y_hat : iterable of float
+        Predictions. Same length as ids.
+    """
     if not root.endswith('/'):
         root += '/'
     # first determine unique ids
@@ -61,9 +77,21 @@ def save_Q_mols(root, ids, y_hat):
     return
 
 def save_Q_rxns(root, ids, y_hat):
-    """Save predicted TS partition functions to file.
+    """Save TS predictions back to file in the temperature table.
     
-    Must have temperature as the first column.
+    Must have temperature as the first column in the original csvs.
+    
+    Parameters
+    ----------
+    root : str
+        Root directory containing data files.
+    ids : iterable
+        Contains ids for each example. Format is specific
+        must be of the form XXXXX_Y, where XXXXX is a unique identifier
+        for the reaction, and Y is an ascending number corresponding to the
+        position of a particular example in its' temperatures
+    y_hat : iterable of float
+        Predictions. Same length as ids.
     """
     if not root.endswith('/'):
         root += '/'

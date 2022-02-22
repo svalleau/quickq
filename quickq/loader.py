@@ -46,16 +46,16 @@ class QestLoader:
     
     def _get_shards(
         self,
-        root: str,
+        files_dir: str,
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """Shardize the root directory and return a generator for the shards.
+        """Shardize the files_dir directory and return a generator for the shards.
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of structures to load per shard
         num_shards : int, number of shards from total to load.
@@ -67,7 +67,7 @@ class QestLoader:
         # iterate through shards
         shard_num = 1
         # get a big list of the reactions
-        data_paths = [root+str(path) for path in os.listdir(root) if path.endswith('.extxyz')]
+        data_paths = [files_dir+str(path) for path in os.listdir(files_dir) if path.endswith('.extxyz')]
         logger.info(f'Total shards: {int(len(data_paths)/shard_size)}')
         for shard_indexes in range(0, len(data_paths), shard_size):
             # if we haven't reached out shard limit, open the shard
@@ -105,7 +105,7 @@ class QestLoader:
         return structures, ind
     
     def load_data(self,
-                  root: str,
+                  files_dir: str,
                   shard_size: int = 500,
                   num_shards: int = None
                  ):
@@ -113,8 +113,8 @@ class QestLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
         num_shards : int, number of shards from total to load.
@@ -125,11 +125,11 @@ class QestLoader:
         """
         logger.info("Loading raw samples now.")
         logger.info("shard_size: %s" % str(shard_size))
-        if not root.endswith('/'):
-            root += '/'
+        if not files_dir.endswith('/'):
+            files_dir += '/'
         
         def shard_generator():
-            for shard_num, shard in enumerate(self._get_shards(root, shard_size, num_shards)):
+            for shard_num, shard in enumerate(self._get_shards(files_dir, shard_size, num_shards)):
                 time1 = time.time()
                 structures, ind = shard
                 # featurize the molprops
@@ -161,7 +161,7 @@ class QestLoader:
         return shard_generator()
     
     def create_dataset(self,
-                       root: str,
+                       files_dir: str,
                        data_dir: str,
                        shard_size: int = 500,
                        num_shards: int = None
@@ -170,8 +170,8 @@ class QestLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
@@ -179,7 +179,7 @@ class QestLoader:
         num_shards : int, number of shards from total to load.
         """
         def shard_generator():
-            for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
+            for df in self.load_data(files_dir=files_dir, shard_size=shard_size, num_shards=num_shards):
                 # add temperature to whatever feature vector was computed
                 feats = numpy.vstack(df[self.featurizer.name].values)
                 T = df['T'].values.reshape(-1,1)
@@ -222,16 +222,16 @@ class QesTSLoader:
 
     def _get_shards(
         self,
-        root: str,
+        files_dir: str,
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """Shardize the root directory and return a generator for the shards.
+        """Shardize the files_dir directory and return a generator for the shards.
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of structures to load per shard
         num_shards : int, number of shards from total to load.
@@ -243,7 +243,7 @@ class QesTSLoader:
         # iterate through shards
         shard_num = 1
         # get a big list of the reactions
-        rxn_paths = [root+str(path) for path in os.listdir(root)]
+        rxn_paths = [files_dir+str(path) for path in os.listdir(files_dir)]
         logger.info(f'Total shards: {int(len(rxn_paths)/shard_size)}')
         for shard_indexes in range(0, len(rxn_paths), shard_size):
             # if we haven't reached out shard limit, open the shard
@@ -296,7 +296,7 @@ class QesTSLoader:
         return structures, rxns
     
     def load_data(self,
-                  root: str,
+                  files_dir: str,
                   shard_size: int = 500,
                   num_shards: int = None
                  ):
@@ -304,8 +304,8 @@ class QesTSLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
         num_shards : int, number of shards from total to load.
@@ -318,7 +318,7 @@ class QesTSLoader:
         logger.info("shard_size: %s" % str(shard_size))
         
         def shard_generator():
-            for shard_num, shard in enumerate(self._get_shards(root, shard_size, num_shards)):
+            for shard_num, shard in enumerate(self._get_shards(files_dir, shard_size, num_shards)):
                 time1 = time.time()
                 structures, rxns = shard
                     
@@ -363,7 +363,7 @@ class QesTSLoader:
         return shard_generator()
     
     def create_dataset(self,
-                       root: str,
+                       files_dir: str,
                        data_dir: str,
                        shard_size: int = 500,
                        num_shards: int = None
@@ -372,18 +372,18 @@ class QesTSLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
         num_shards : int, number of shards from total to load.
         """
-        if not root.endswith('/'):
-            root +='/'
+        if not files_dir.endswith('/'):
+            files_dir +='/'
         def shard_generator():
-            for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
+            for df in self.load_data(files_dir=files_dir, shard_size=shard_size, num_shards=num_shards):
                 # add temperature to whatever feature vector was computed
                 feats = numpy.vstack(df[self.featurizer.name].values)
                 qr = df['logQr'].values.reshape(-1,1)
@@ -430,16 +430,16 @@ class DoubleLoader:
 
     def _get_shards(
         self,
-        root: str,
+        files_dir: str,
         shard_size: int,
         num_shards: int
     ) -> Iterator:
-        """Shardize the root directory and return a generator for the shards.
+        """Shardize the files_dir directory and return a generator for the shards.
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of structures to load per shard
         num_shards : int, number of shards from total to load.
@@ -451,7 +451,7 @@ class DoubleLoader:
         # iterate through shards
         shard_num = 1
         # get a big list of the reactions
-        rxn_paths = [root+str(path) for path in os.listdir(root)]
+        rxn_paths = [files_dir+str(path) for path in os.listdir(files_dir)]
         logger.info(f'Total shards: {int(len(rxn_paths)/shard_size)}')
         for shard_indexes in range(0, len(rxn_paths), shard_size):
             # if we haven't reached out shard limit, open the shard
@@ -504,7 +504,7 @@ class DoubleLoader:
         return structures, rxns
     
     def load_data(self,
-                  root: str,
+                  files_dir: str,
                   shard_size: int = 500,
                   num_shards: int = None
                  ):
@@ -512,8 +512,8 @@ class DoubleLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
         num_shards : int, number of shards from total to load.
@@ -526,7 +526,7 @@ class DoubleLoader:
         logger.info("shard_size: %s" % str(shard_size))
         
         def shard_generator():
-            for shard_num, shard in enumerate(self._get_shards(root, shard_size, num_shards)):
+            for shard_num, shard in enumerate(self._get_shards(files_dir, shard_size, num_shards)):
                 time1 = time.time()
                 structures, rxns = shard
                     
@@ -579,7 +579,7 @@ class DoubleLoader:
         return shard_generator()
     
     def create_dataset(self,
-                       root: str,
+                       files_dir: str,
                        data_dir: str,
                        shard_size: int = 500,
                        num_shards: int = None
@@ -588,18 +588,18 @@ class DoubleLoader:
         
         Parameters
         ----------
-        root : str
-            Root directory containing the data. See class docs for details.
+        files_dir : str
+            files_dir directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
         num_shards : int, number of shards from total to load.
         """
-        if not root.endswith('/'):
-            root += '/'
+        if not files_dir.endswith('/'):
+            files_dir += '/'
         def shard_generator():
-            for df in self.load_data(root=root, shard_size=shard_size, num_shards=num_shards):
+            for df in self.load_data(files_dir=files_dir, shard_size=shard_size, num_shards=num_shards):
                 # add temperature to whatever feature vector was computed
                 feats = numpy.vstack(df[self.featurizer.name].values)
                 qr = df['logQr'].values.reshape(-1,1)

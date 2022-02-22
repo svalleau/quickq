@@ -6,7 +6,7 @@ atoms.
 """
 
 import ase.io
-from quickq.featurizers MolMLFeaturizer
+from quickq.featurizers import MolMLFeaturizer
 import sys
 import os
 filepath = os.path.dirname(os.path.realpath(__file__))

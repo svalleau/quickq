@@ -39,13 +39,13 @@ def atoms_to_molmllist(atoms: Atoms, bonds: bool = False):
     else:
         return [atomic_numbers, positions]
     
-def save_Q_mols(root, ids, y_hat):
+def save_Q_mols(files_dir, ids, y_hat):
     """Save structure predictions back to file in the temperature table.
     
     Parameters
     ----------
-    root : str
-        Root directory containing data files.
+    files_dir : str
+        directory containing data files.
     ids : iterable
         Contains ids for each example. Format is specific
         must be of the form XXXXX_Y, where XXXXX is a unique identifier
@@ -54,8 +54,8 @@ def save_Q_mols(root, ids, y_hat):
     y_hat : iterable of float
         Predictions. Same length as ids.
     """
-    if not root.endswith('/'):
-        root += '/'
+    if not files_dir.endswith('/'):
+        files_dir += '/'
     # first determine unique ids
     split_ids = np.array([id_.split('_') for id_ in ids])
     structure_ids, temperature_ids = (split_ids.T)
@@ -71,20 +71,20 @@ def save_Q_mols(root, ids, y_hat):
     structure_groups = output_df.groupby('structure_id')
     for group_id, structure_df in structure_groups:
         structure_df.sort_values('temperature_id', inplace=True)
-        current_df = pd.read_csv(root+group_id+'.csv', index_col=0)
+        current_df = pd.read_csv(files_dir+group_id+'.csv', index_col=0)
         current_df['log_qpart_predicted'] = structure_df['log_qpart_predicted'].values
-        current_df.to_csv(root+group_id+'.csv')
+        current_df.to_csv(files_dir+group_id+'.csv')
     return
 
-def save_Q_rxns(root, ids, y_hat):
+def save_Q_rxns(files_dir, ids, y_hat):
     """Save TS predictions back to file in the temperature table.
     
     Must have temperature as the first column in the original csvs.
     
     Parameters
     ----------
-    root : str
-        Root directory containing data files.
+    files_dir : str
+        directory containing data files.
     ids : iterable
         Contains ids for each example. Format is specific
         must be of the form XXXXX_Y, where XXXXX is a unique identifier
@@ -93,8 +93,8 @@ def save_Q_rxns(root, ids, y_hat):
     y_hat : iterable of float
         Predictions. Same length as ids.
     """
-    if not root.endswith('/'):
-        root += '/'
+    if not files_dir.endswith('/'):
+        files_dir += '/'
     split_ids = np.array([id_.split('_') for id_ in ids])
     rxn_ids, temperature_ids = (split_ids.T)
     output_df = pd.DataFrame(
@@ -110,14 +110,14 @@ def save_Q_rxns(root, ids, y_hat):
     for rxn_id, rxn_df in rxn_groups:
         rxn_df.sort_values('temperature_id', inplace=True)
         # there may or may not be a ts file already
-        if os.path.exists(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv'):
-            current_df = pd.read_csv(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv', index_col=0)
+        if os.path.exists(files_dir+'rxn'+rxn_id+f'/ts{rxn_id}.csv'):
+            current_df = pd.read_csv(files_dir+'rxn'+rxn_id+f'/ts{rxn_id}.csv', index_col=0)
         else:
-            new_df = pd.read_csv(root+'rxn'+rxn_id+f'/r{rxn_id}.csv', index_col=0)
+            new_df = pd.read_csv(files_dir+'rxn'+rxn_id+f'/r{rxn_id}.csv', index_col=0)
             new_df = new_df[[new_df.columns[0]]]
             current_df = new_df
         current_df['log_qpart_predicted'] = rxn_df['log_qpart_predicted'].values
-        current_df.to_csv(root+'rxn'+rxn_id+f'/ts{rxn_id}.csv')
+        current_df.to_csv(files_dir+'rxn'+rxn_id+f'/ts{rxn_id}.csv')
     return
     
     

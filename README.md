@@ -20,7 +20,7 @@ usage: quickq.py [-h] (-q | -t | -d) root
 predict partition functions
 
 positional arguments:
-  root          path to root directory containing structure files or reaction directories
+  data          path to data directory containing structure files or reaction directories
 
 optional arguments:
   -h, --help    show this help message and exit
@@ -45,7 +45,7 @@ Place both files for each system in a directory with a path we call `root`.
 
 The directory structure should then look like, where `XX` and `YY` represent an arbitrary names, note that no name should be repeated between systems:
 ```
-/root/
+/data/
 |-XX.extxyz
 |-XX.csv
 |-YY.extxyz
@@ -64,10 +64,10 @@ QesTS is a predictor of unknown transition state partition functions. Four files
 
 **Note that the temperatures in the two csv files must be identical. This will not be checked.**
 
-Place these files alone in a directory entitled "rxnXX". This directory represents the reaction with identifier XX. Place as many reactions as interested in alone in a directory whose path we call `root`.
+Place these files alone in a directory entitled "rxnXX". This directory represents the reaction with identifier XX. Place as many reactions as interested in alone in a directory whose path we call `data`.
 The directory structure should then look like, where `XX` and `YY` represent a arbitrary names, note that no name should be repeated between systems:
 ```
-/root/
+/data/
 |-rxnXX/
 | |-rXX.extxyz
 | |-pXX.extxyz
@@ -80,12 +80,12 @@ The directory structure should then look like, where `XX` and `YY` represent a a
 | |-pYY.csv
 ...
 ```
-The predictions can then be executed by the following command `python quickq.py <root> -t`, after which each reaction directory will contain a csv file entitled "tsXX.csv" where XX is that reactions identifier. This csv file contains the temperatures used to predict the partition function, and a column entitled "log_qpart_predicted" associated with the logarithm of the partition functions of the unknown transition state at those temperatures.
+The predictions can then be executed by the following command `python quickq.py <data> -t`, after which each reaction directory will contain a csv file entitled "tsXX.csv" where XX is that reactions identifier. This csv file contains the temperatures used to predict the partition function, and a column entitled "log_qpart_predicted" associated with the logarithm of the partition functions of the unknown transition state at those temperatures.
 
-### 3. Double Usage
-Double prediction utilizes Qest and QesTS to predict partition functions of unknown transition states using only structure and temperature. The directory structure required is identical to QesTS prediction (See **2. QesTS Usage**) except that _the "log_qpart"_ columns in the reactant and product csv files are no longer ncessary. Note that the temperatures column still must be present.
+### 3. Double model Usage
+The Double model prediction utilizes Qest and QesTS to predict partition functions of unknown transition states using only structure and temperature. The directory structure required is identical to QesTS prediction (See **2. QesTS Usage**) except that _the "log_qpart"_ columns in the reactant and product csv files are no longer ncessary. Note that the temperatures column still must be present.
 
-The predictions can then be executed by the following command `python quickq.py <root> -d`, after which each reaction directory will contain a csv file entitled "tsXX.csv" where XX is that reactions identifier. This csv file contains the temperatures used to predict the partition function, and a column entitled "log_qpart_predicted" associated with the logarithm of the partition functions of the unknown transition state at those temperatures.
+The predictions can then be executed by the following command `python quickq.py <data> -d`, after which each reaction directory will contain a csv file entitled "tsXX.csv" where XX is that reactions identifier. This csv file contains the temperatures used to predict the partition function, and a column entitled "log_qpart_predicted" associated with the logarithm of the partition functions of the unknown transition state at those temperatures.
 
 ## Toy data
 The repository contains a directory "toy_data" containing three datasets "qest_test", "qests_test" and "double_test". These datasets each contain the minumum amount of information needed to make predictions (not that the extra information in the extended xyz files are not necessary, only the atoms and positions) using each of the three models.  

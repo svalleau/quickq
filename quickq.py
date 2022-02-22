@@ -3,9 +3,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Predict partition functions.')
 parser.add_argument(
-    'root',
+    'data',
     type=str, 
-    help='Path to root directory containing structure files or reaction directories.')
+    help='Path to data directory containing structure files or reaction directories.')
 
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument(
@@ -39,18 +39,18 @@ if __name__ == '__main__':
     with tempfile.TemporaryDirectory() as tempdir:
         if args.qest:
             loader = quickq.loader.QestLoader(EncodedBonds)
-            dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/qest')
+            dataset = loader.create_dataset(data=args.data, data_dir=f'{tempdir}/qest')
             y_hat = quickq.pipeline.predict_qest(dataset)
             quickq.io.save_Q_mols(args.root, dataset.ids, y_hat)
             
         elif args.qests:
             loader = quickq.loader.QesTSLoader(EncodedBonds)
-            dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/qests')
+            dataset = loader.create_dataset(data=args.data, data_dir=f'{tempdir}/qests')
             y_hat = quickq.pipeline.predict_qests(dataset)
             quickq.io.save_Q_rxns(args.root, dataset.ids, y_hat)
             
         elif args.double:
             loader = quickq.loader.DoubleLoader(EncodedBonds)
-            dataset = loader.create_dataset(root=args.root, data_dir=f'{tempdir}/double')
+            dataset = loader.create_dataset(data=args.data, data_dir=f'{tempdir}/double')
             y_hat = quickq.pipeline.predict_qests(dataset)
             quickq.io.save_Q_rxns(args.root, dataset.ids, y_hat)

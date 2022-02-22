@@ -15,12 +15,12 @@ pip install .
 Once installed, the package can be used at the command line as `python quickq.py <arguments>`:
 
 ```
-usage: quickq.py [-h] (-q | -t | -d) root
+usage: quickq.py [-h] (-q | -t | -d) files_dir
 
 predict partition functions
 
 positional arguments:
-  data          path to data directory containing structure files or reaction directories
+  files_dir          path to data directory containing structure files or reaction directories
 
 optional arguments:
   -h, --help    show this help message and exit
@@ -41,7 +41,7 @@ Input data: two files are required for each system
 
 Both files must have the same file name header, eg `molecule1.extxyz` and `molecule1.csv`.
 
-Place both files for each system in a directory with a path we call `root`.
+Place both files for each system in a directory with a path we call `files_dir`.
 
 The directory structure should then look like, where `XX` and `YY` represent an arbitrary names, note that no name should be repeated between systems:
 ```
@@ -53,7 +53,7 @@ The directory structure should then look like, where `XX` and `YY` represent an 
 |-...
 ```
 
-The predictions can then be executed by the following command `python quickq.py <root> -q`, after which each csv file will have a new column `log_qpart_predicted` corresponding to the natural log of the predicted partition functions.
+The predictions can then be executed by the following command `python quickq.py <files_dir> -q`, after which each csv file will have a new column `log_qpart_predicted` corresponding to the natural log of the predicted partition functions.
 
 ### 2. QesTS Usage
 QesTS is a predictor of unknown transition state partition functions. Four files are required for each reaction, where `XX` is an arbitrary name:

@@ -45,7 +45,7 @@ Place both files for each system in a directory with a path we call `files_dir`.
 
 The directory structure should then look like, where `XX` and `YY` represent an arbitrary names, note that no name should be repeated between systems:
 ```
-/data/
+/files_dir/
 |-XX.extxyz
 |-XX.csv
 |-YY.extxyz
@@ -67,7 +67,7 @@ QesTS is a predictor of unknown transition state partition functions. Four files
 Place these files alone in a directory entitled "rxnXX". This directory represents the reaction with identifier XX. Place as many reactions as interested in alone in a directory whose path we call `data`.
 The directory structure should then look like, where `XX` and `YY` represent a arbitrary names, note that no name should be repeated between systems:
 ```
-/data/
+/files_dir/
 |-rxnXX/
 | |-rXX.extxyz
 | |-pXX.extxyz

@@ -1,4 +1,4 @@
-"""Wrapper function for tranformation and prediction."""
+"""Wrapper function for transformation and prediction."""
 import pickle
 import os
 
@@ -22,8 +22,8 @@ def predict_qest(dataset):
     
     Parameters
     ----------
-    dataset : deechem.Dataset
-        data to make preidctions on. Should be created by data loader.
+    dataset : deechem.data.Dataset
+        data to make predictions on. Should be created by data loader.
     """
     # make transformation
     dataset_ = dataset.transform(qest_X_trans)
@@ -36,7 +36,7 @@ def predict_qests(dataset):
     
     Parameters
     ----------
-    dataset : deechem.Dataset
+    dataset : deechem.data.Dataset
         data to make preidctions on. Should be created by data loader.
     """
     y_hat = quickq.predictors.QesTS.predict(dataset)

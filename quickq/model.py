@@ -1,6 +1,6 @@
 """Keras based deepchem DNN model.
 
-The native deppchem DNN has been changed to pytorch, and tensorflow is
+The native deepchem DNN has been changed to pytorch, and tensorflow is
 desired. Here we create a Deepchem simple dense Neural network.
 """
 import os
@@ -26,7 +26,7 @@ class DCDNN(deepchem.models.KerasModel):
     n_features : int
         size of feature vector
     layer_sizes : iterable
-        Neurons counds for the DNN. Length of the iterable determines the
+        Neurons counts for the DNN. Length of the iterable determines the
         layer counts, and the values the number of neurons in each of those
         layers. Alternative to specifying neuron and layer count.
     neuron_count : int

@@ -16,7 +16,7 @@ Atoms = Type[ase.Atoms]
 def atoms_to_molmllist(atoms: Atoms, bonds: bool = False):
     """Constructs a molml list of lists from an atoms object.
     
-    By default, will consider Atomic numbers and atom distances, but can be
+    By default, will consider atomic numbers and atom distances, but can be
     directed to also compute bonds. 
 
     Parameters

@@ -1,4 +1,4 @@
-"""Command line interface to the package"""
+"""Command line interface to the package."""
 import argparse
 
 parser = argparse.ArgumentParser(description='Predict partition functions.')

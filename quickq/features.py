@@ -1,4 +1,4 @@
-"""Defines the featurizer used to make predictions
+"""Defines the featurizer used to make predictions.
 
 MolML requires the systems themselves to fit the featurizer. This is a problem
 when we featurize individual chunks at a time. We must first retrieve the fit

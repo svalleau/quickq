@@ -78,13 +78,13 @@ class MolMLFeaturizer(MolFeaturizer):
     Parameters
     ----------
     name : str
-        Name of featurizer in molml
+        name of featurizer in molml
     bonds : bool
         whether to consider bonds when computing features
     fit_atoms : list of ase.Atoms
         Atoms to be used for fitting featurizer before computing the entire
-        dataset. Molml does not allow specification of maximums for sustem
-        size dependant features, so must be determined by fitting to the
+        dataset. Molml does not allow specification of maximums for system
+        size dependent features, so must be determined by fitting to the
         largest and most diverse systems.
     **kwargs passed to molml featurizer construction
     
@@ -110,7 +110,7 @@ class MolMLFeaturizer(MolFeaturizer):
         return
     
     def _fit(self, fit_atoms: list):
-        """Fit the transfomer ahead of time to fit atoms"""
+        """Fit the transfomer ahead of time to the fit_atoms."""
         molml_lists = [
             quickq.io.atoms_to_molmllist(
                     atoms, bonds=self.bonds

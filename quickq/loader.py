@@ -23,13 +23,12 @@ import quickq.featurizers
 logger = logging.getLogger(__name__)
 
 class QestLoader:
-    """Loads molecules and their Q valuesfrom raw data files.
+    """Loads molecules and their Q values from raw data files.
     
-    Data must be stored in a folder as:
+    Data must be stored in a folder alone as:
     -XXX.extxyz
     -XXX.csv
-    For each molecule XXX. csv must contain column "T" and optionally the target
-    "log_qpart"
+    For each molecule XXX. csv must contain column "T".
     Data is featurized and saved as a deepchem dataset.
     
     Parameters
@@ -55,10 +54,11 @@ class QestLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
             Number of structures to load per shard
-        num_shards : int, number of shards from total to load.
+        num_shards : int
+            number of shards from total to load.
         
         Returns
         -------
@@ -85,7 +85,7 @@ class QestLoader:
         Parameters
         ----------
         shardpaths : list of str
-            The paths to reactions in this shard
+            The paths to structures in this shard
         
         Returns
         -------
@@ -114,10 +114,11 @@ class QestLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
-            Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+            Number of structures to load per shard
+        num_shards : int,
+            number of shards from total to load.
         
         Returns
         -------
@@ -171,12 +172,13 @@ class QestLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
-            Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+            Number of structures to load per shard
+        num_shards : int
+            number of shards from total to load.
         """
         def shard_generator():
             for df in self.load_data(files_dir=files_dir, shard_size=shard_size, num_shards=num_shards):
@@ -196,16 +198,16 @@ class QestLoader:
         return deepchem.data.DiskDataset.create_dataset(shard_generator(), data_dir, ['logQ'])
     
 class QesTSLoader:
-    """Loads structure from reactions from raw data files.
+    """Loads structures from reactions from raw data files.
     
-    Data must be stored in a folder as:
+    Data for each reaction must be stored in a folder as:
     rxnXXX/
     -rXXX.extxyz
     -rXXX.csv
     -pXXX.extxyz
     -pXXX.csv
     For each reaction XXX. csvs must contain column temperature "T" as first columns
-    and "log_qpart" as the reacta/products logged Q values. T values must match.
+    and "log_qpart" as the reactants/products logged Q values. T values must match.
     Data is featurized and saved as a deepchem dataset.
     
     Parameters
@@ -231,10 +233,11 @@ class QesTSLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
-            Number of structures to load per shard
-        num_shards : int, number of shards from total to load.
+            Number of reactions to load per shard
+        num_shards : int
+            number of shards from total to load.
         
         Returns
         -------
@@ -305,10 +308,11 @@ class QesTSLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+        num_shards : int
+            number of shards from total to load.
         
         Returns
         -------
@@ -373,12 +377,13 @@ class QesTSLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+        num_shards : int
+            number of shards from total to load.
         """
         if not files_dir.endswith('/'):
             files_dir +='/'
@@ -403,15 +408,15 @@ class QesTSLoader:
     
     
 class DoubleLoader:
-    """Loads structure from reactions from raw data files.
+    """Loads structures from reactions from raw data files.
     
-    Data must be stored in a folder as:
+    Data for each reaction must be stored in a folder as:
     rxnXXX/
     -rXXX.extxyz
     -rXXX.csv
     -pXXX.extxyz
     -pXXX.csv
-    For each reaction XXX. csvs must contain column temperature "T" as first column. 
+    For each reaction XXX. csvs must contain column temperature "T" as first columns.
     T values must match.
     Data is featurized and saved as a deepchem dataset.
     
@@ -439,10 +444,11 @@ class DoubleLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
-            Number of structures to load per shard
-        num_shards : int, number of shards from total to load.
+            Number of reactions to load per shard
+        num_shards : int
+            number of shards from total to load.
         
         Returns
         -------
@@ -513,10 +519,11 @@ class DoubleLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+        num_shards : int
+            number of shards from total to load.
         
         Returns
         -------
@@ -589,12 +596,13 @@ class DoubleLoader:
         Parameters
         ----------
         files_dir : str
-            files_dir directory containing the data. See class docs for details.
+            directory containing the data. See class docs for details.
         data_dir : str
             directory name to store deepchem disk dataset
         shard_size : int
             Number of reactions to load per shard
-        num_shards : int, number of shards from total to load.
+        num_shards : int
+            number of shards from total to load.
         """
         if not files_dir.endswith('/'):
             files_dir += '/'
